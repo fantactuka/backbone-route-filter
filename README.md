@@ -4,7 +4,7 @@ Backbone Route filters [![Build Status](https://travis-ci.org/fantactuka/backbon
 Backbone Route filters allows you to have a pre-condition for the router using `before` filters and some
 "after" routing calls using `after` filters.
 
-Before filters could prevent router from calling action in case any of it return false.
+Before filters could prevent router from calling action in case any of them returns false.
 
 ```js
 var Router = Backbone.Router.extend({
@@ -22,6 +22,10 @@ var Router = Backbone.Router.extend({
     '*any': function(fragment, args) {
       console.log('Navigating to ' + fragment + ' with arguments: ', args);
     }
+  },
+
+  after: {
+    // After filters
   },
 
   checkAuthorization: function(fragment, args) {
