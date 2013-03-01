@@ -2,6 +2,7 @@
   "globals" : {
     "Backbone"   : false,
     "_"          : false,
+    "$"          : false,
     "it"         : false,
     "xit"        : false,
     "describe"   : false,

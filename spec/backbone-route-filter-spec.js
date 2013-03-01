@@ -44,13 +44,12 @@ describe('Backbone.Validator', function() {
 
     home: function() {
       this.isAtHome = true;
-      this.homeArgs = _.toArray(arguments);
     }
   });
 
   beforeEach(function() {
     fakeLocation = new FakeLocation('http://example.com');
-    Backbone.history = _.extend(new Backbone.History, {location: fakeLocation});
+    Backbone.history = _.extend(new Backbone.History(), {location: fakeLocation});
     router = new Router();
     Backbone.history.interval = 9;
     Backbone.history.start({pushState: false});
