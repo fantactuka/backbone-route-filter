@@ -40,3 +40,8 @@ var Router = Backbone.Router.extend({
   }
 });
 ```
+
+### Install 
+Via [Bower](http://twitter.github.com/bower/): `bower install backbone-route-filter` or copy [backbone-route-filter.js](https://raw.github.com/fantactuka/backbone-route-filter/master/backbone-route-filter.js)
+
+And just add `backbone-route-filter.js` or `backbone-route-filter-min.js` after Backbone on your page
