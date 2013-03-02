@@ -6,6 +6,11 @@ Backbone Route filters allows you to have a pre-condition for the router using `
 
 Before filters could prevent router from calling action in case any of them returns false.
 
+## Installation
+Using [Bower](http://twitter.github.com/bower/) `bower install backbone-route-filter` or just copy [backbone-route-filter.js](https://raw.github.com/fantactuka/backbone-route-filter/master/backbone-route-filter.js)
+
+## Usage
+
 ```js
 var Router = Backbone.Router.extend({
   routes: {
@@ -40,8 +45,3 @@ var Router = Backbone.Router.extend({
   }
 });
 ```
-
-### Install 
-Via [Bower](http://twitter.github.com/bower/): `bower install backbone-route-filter` or copy [backbone-route-filter.js](https://raw.github.com/fantactuka/backbone-route-filter/master/backbone-route-filter.js)
-
-And just add `backbone-route-filter.js` or `backbone-route-filter-min.js` after Backbone on your page
