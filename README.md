@@ -4,7 +4,7 @@ Backbone Route filters [![Build Status](https://travis-ci.org/fantactuka/backbon
 Backbone Route filters allows you to have a pre-condition for the router using `before` filters and some
 "after" routing calls using `after` filters.
 
-Before filters could prevent router from calling action in case any of them returns false.
+Before filters could prevent router from calling action in case any of them returns false. **Note** that `after` filters are executed only of `before` filters are passed and original route executed
 
 ## Installation
 Using [Bower](http://twitter.github.com/bower/) `bower install backbone-route-filter` or just copy [backbone-route-filter.js](https://raw.github.com/fantactuka/backbone-route-filter/master/backbone-route-filter.js)
