@@ -32,8 +32,8 @@ var Router = Backbone.Router.extend({
 
   after: {
     // Google analytics tracking
-    // After filter will be triggered only if before filters passed action was triggered,
-    // so you'll track pages that was displayed to user
+    // After filter will be triggered only if all before filters passed and action was triggered,
+    // so you'll only track pages that was displayed to user
     '*any': function(fragment) {
       goog._trackPageview(fragment);
     }
