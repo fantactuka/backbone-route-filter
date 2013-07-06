@@ -2,6 +2,7 @@ describe('Backbone.Validator', function() {
   'use strict';
 
   var fakeLocation,
+    Router,
     router,
     action,
     navigate = function(path) {
@@ -35,21 +36,20 @@ describe('Backbone.Validator', function() {
     }
   };
 
-  var Router = Backbone.Router.extend({
-    before: {},
-    after: {},
-    routes: {
-      'home(/user/:user/page/:page?:query)': 'home'
-    },
-
-    home: function() {
-      this.isAtHome = true;
-    }
-  });
-
   beforeEach(function() {
     fakeLocation = new FakeLocation('http://example.com');
     Backbone.history = _.extend(new Backbone.History(), {location: fakeLocation});
+    Router = Backbone.Router.extend({
+      before: {},
+      after: {},
+      routes: {
+        'home(/user/:user/page/:page?:query)': 'home'
+      },
+
+      home: function() {
+        this.isAtHome = true;
+      }
+    });
     router = new Router();
     Backbone.history.interval = 9;
     Backbone.history.start({pushState: false});
@@ -140,6 +140,58 @@ describe('Backbone.Validator', function() {
       navigate('home');
       expect(router.isAtHome).toBeTruthy();
       expect(spy.callCount).toEqual(2);
+    });
+  });
+
+  describe('inheritance', function() {
+    it('inherits filters', function() {
+      var ChildRouter, GrandChildRouter;
+
+      Router.prototype.before = {
+        '*any': '_logRoute',
+        'index': '_original'
+      };
+
+      Router.prototype.after = {
+        '*any': '_logRoute',
+        'index': '_original'
+      };
+
+      ChildRouter = Router.extend({
+        before: {
+          '*any-child': '_logChildRoute',
+          'index': '_overridden'
+        },
+        after: {
+          '*any-child': '_logChildRoute',
+          'index': '_overridden'
+        }
+      });
+
+      GrandChildRouter = ChildRouter.extend({
+        before: {
+          '*any-grand-child': '_logGrandChildRoute'
+        },
+        after: {
+          '*any-grand-child': '_logGrandChildRoute'
+        }
+      });
+
+      router = new GrandChildRouter();
+
+      expect(router.before).toEqual({
+        'index': '_overridden',
+        '*any': '_logRoute',
+        '*any-child': '_logChildRoute',
+        '*any-grand-child': '_logGrandChildRoute'
+      });
+
+      expect(router.after).toEqual({
+        'index': '_overridden',
+        '*any': '_logRoute',
+        '*any-child': '_logChildRoute',
+        '*any-grand-child': '_logGrandChildRoute'
+      });
     });
   });
 });

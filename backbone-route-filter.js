@@ -1,5 +1,18 @@
 (function(Backbone, _) {
 
+  var extend = Backbone.Router.extend;
+
+  Backbone.Router.extend = function() {
+    var child = extend.apply(this, arguments),
+      childProto = child.prototype,
+      parentProto = this.prototype;
+
+    childProto.before = _.extend({}, parentProto.before, childProto.before);
+    childProto.after = _.extend({}, parentProto.after, childProto.after);
+
+    return child;
+  };
+
   _.extend(Backbone.Router.prototype, {
 
     /**
