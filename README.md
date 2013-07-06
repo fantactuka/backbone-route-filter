@@ -7,6 +7,9 @@ any of them returns false.
 
 **Note** that `after` filters are executed only of `before` filters are passed and original route executed
 
+Filters are inherited by extending parent's filters with child's. Child's filter have higher priority, so having same
+pattern in child filters will override parent's behaviour.
+
 ## Installation
 Using [Bower](http://twitter.github.com/bower/) `bower install backbone-route-filter` or just copy [backbone-route-filter.js](https://raw.github.com/fantactuka/backbone-route-filter/master/backbone-route-filter.js)
 
