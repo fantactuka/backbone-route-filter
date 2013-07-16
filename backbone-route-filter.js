@@ -1,15 +1,15 @@
 (function(Backbone, _) {
 
-  var original = Backbone.Router.extend;
+  var extend = Backbone.Router.extend;
 
   Backbone.Router.extend = function() {
-    var extend = _.extend,
-      child = original.apply(this, arguments),
+    var child = extend.apply(this, arguments),
       childProto = child.prototype,
       parentProto = this.prototype;
 
-    childProto.before = extend({}, parentProto.before, childProto.before);
-    childProto.after = extend({}, parentProto.after, childProto.after);
+    _.each(['before', 'after'], function(filter) {
+      _.defaults(childProto[filter], parentProto[filter]);
+    });
 
     return child;
   };
