@@ -26,18 +26,26 @@
      */
     route: function(route, name, callback) {
       if (!_.isRegExp(route)) route = this._routeToRegExp(route);
+      if (_.isFunction(name)) {
+        callback = name;
+        name = '';
+      }
       if (!callback) callback = this[name];
-      Backbone.history.route(route, _.bind(function(fragment) {
-        var args = this._extractParameters(route, fragment);
-        if (this._runFilters(this.before, fragment, args, true)) {
-          if(callback) callback.apply(this, args);
-          this.trigger.apply(this, ['route:' + name].concat(args));
-          this.trigger('route', name, args);
-          Backbone.history.trigger('route', this, name, args);
-          this._runFilters(this.after, fragment, args, false);
-        }
-      }, this));
+      var router = this;
+      Backbone.history.route(route, function(fragment) {
+        var args = router._extractParameters(route, fragment);
 
+        if (router._runFilters(router.before, fragment, args, true)) {
+          if (callback) {
+            callback.apply(router, args);
+          }
+
+          router.trigger.apply(router, ['route:' + name].concat(args));
+          router.trigger('route', name, args);
+          Backbone.history.trigger('route', router, name, args);
+          router._runFilters(router.after, fragment, args, false);
+        }
+      });
       return this;
     },
 
@@ -51,7 +59,7 @@
      * @private
      */
     _runFilters: function(filters, fragment, args, stopOnError) {
-      return _[stopOnError ? 'every' : 'each'](filters, function(fn, filter) {
+      return _[stopOnError ? 'every' : 'each'](filters || [], function(fn, filter) {
         filter = _.isRegExp(filter) ? filter : this._routeToRegExp(filter);
 
         if (filter.test(fragment)) {
