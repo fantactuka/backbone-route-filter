@@ -54,3 +54,13 @@ var Router = Backbone.Router.extend({
   }
 });
 ```
+
+## Running tests
+You can use karma runner via
+
+```bash
+npm install && grunt test
+```
+
+or directly hit html files `spec/backbone-qunit.html` and `spec/jasmine.html` to run Backbone's standard suite and
+Backbone route filter specs
