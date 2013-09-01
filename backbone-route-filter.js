@@ -35,7 +35,7 @@
       Backbone.history.route(route, function(fragment) {
         var args = router._extractParameters(route, fragment);
 
-        runFilters(router.before, router, fragment, args, function() {
+        runFilters(router, router.before, fragment, args, function() {
           if (callback) {
             callback.apply(router, args);
           }
@@ -44,7 +44,7 @@
           router.trigger('route', name, args);
           Backbone.history.trigger('route', router, name, args);
 
-          runFilters(router.after, router, fragment, args, function() { });
+          runFilters(router, router.after, fragment, args, function() { });
         });
       });
       return this;
@@ -54,13 +54,13 @@
   /**
    * Running all filters that matches current fragment
    *
-   * @param filters {Object} all available filters
    * @param router {Router} router instance reference
+   * @param filters {Object} all available filters
    * @param fragment {String} current fragment
    * @param args {Array} fragment arguments
    * @param callback {Function}
    */
-  function runFilters(filters, router, fragment, args, callback) {
+  function runFilters(router, filters, fragment, args, callback) {
     var chain = _.filter(filters, function(callback, filter) {
       filter = _.isRegExp(filter) ? filter : router._routeToRegExp(filter);
       return filter.test(fragment);
