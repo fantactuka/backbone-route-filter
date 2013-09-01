@@ -10,6 +10,9 @@ any of them returns false.
 Filters are inherited by extending parent's filters with child's. Child's filter have higher priority, so having same
 pattern in child filters will override parent's behaviour.
 
+Filters are also supporting async mode via calling `next` callback when filter finished. This callback should be explicitly
+passed as third argument to the filter function. See `checkAuthorization` in example below.
+
 ## Installation
 Using [Bower](http://twitter.github.com/bower/) `bower install backbone-route-filter` or just copy [backbone-route-filter.js](https://raw.github.com/fantactuka/backbone-route-filter/master/backbone-route-filter.js)
 
@@ -42,14 +45,25 @@ var Router = Backbone.Router.extend({
     }
   },
 
-  checkAuthorization: function(fragment, args) {
-    if (!this._isSignedIn) {
+  checkAuthorization: function(fragment, args, next) {
+    if (this._isSignedIn) {
+      // If signed in - just proceed
+      next();
+    } else {
+      // Requesting server to check if user is authorised
+      var that = this;
 
-      // Going to sign-in page
-      this.signIn();
+      $.ajax({
+        url: '/auth',
+        success: function() {
+          that._isSignedIn = true;
+          next();
+        },
 
-      // Preventing current route from being handled
-      return false;
+        error: function() {
+          Backbone.navigate('login', true);
+        }
+      });
     }
   }
 });
