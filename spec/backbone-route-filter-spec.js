@@ -2,13 +2,13 @@ describe('Backbone.Validator', function() {
   'use strict';
 
   var fakeLocation,
-    Router,
-    router,
-    action,
-    navigate = function(path) {
-      fakeLocation.replace('http://example.com#' + path);
-      Backbone.history.checkUrl();
-    };
+      Router,
+      router,
+      action,
+      navigate = function(path) {
+        fakeLocation.replace('http://example.com#' + path);
+        Backbone.history.checkUrl();
+      };
 
   // Fake location object
   var FakeLocation = function(href) {
@@ -18,13 +18,13 @@ describe('Backbone.Validator', function() {
   FakeLocation.prototype = {
     replace: function(href) {
       _.extend(this, _.pick($('<a></a>', {href: href})[0],
-        'href',
-        'hash',
-        'host',
-        'search',
-        'fragment',
-        'pathname',
-        'protocol'
+          'href',
+          'hash',
+          'host',
+          'search',
+          'fragment',
+          'pathname',
+          'protocol'
       ));
       // In IE, anchor.pathname does not contain a leading slash though
       // window.location.pathname does.
@@ -126,7 +126,7 @@ describe('Backbone.Validator', function() {
       expect(spy.callCount).toEqual(2);
     });
 
-    it('calls action if any filter failed', function() {
+    it('calls filters unless one failed', function() {
       var spy = jasmine.createSpy('filter').andReturn(false);
 
       _.extend(router, {
@@ -139,14 +139,14 @@ describe('Backbone.Validator', function() {
 
       navigate('home');
       expect(router.isAtHome).toBeTruthy();
-      expect(spy.callCount).toEqual(2);
+      expect(spy.callCount).toEqual(1);
     });
   });
 
   describe('inheritance', function() {
-    it('inherits filters', function() {
-      var ChildRouter, GrandChildRouter;
+    var ChildRouter, GrandChildRouter;
 
+    beforeEach(function() {
       Router.prototype.before = {
         '*any': '_logRoute',
         'index': '_original'
@@ -178,20 +178,78 @@ describe('Backbone.Validator', function() {
       });
 
       router = new GrandChildRouter();
+    });
 
+    it('inherits before filters', function() {
       expect(router.before).toEqual({
         'index': '_overridden',
         '*any': '_logRoute',
         '*any-child': '_logChildRoute',
         '*any-grand-child': '_logGrandChildRoute'
       });
+    });
 
+    it('inherits after filters', function() {
       expect(router.after).toEqual({
         'index': '_overridden',
         '*any': '_logRoute',
         '*any-child': '_logChildRoute',
         '*any-grand-child': '_logGrandChildRoute'
       });
+    });
+  });
+
+  describe('async mode', function() {
+    it('calls filters and triggers one-by-one', function() {
+
+      var calls = [];
+
+      router.before = {
+        'home': function(fragment, args, next) {
+          setTimeout(function() {
+            calls.push(1);
+            next();
+          }, 10);
+        },
+
+        '*home': function() {
+          calls.push(2);
+          return true;
+        },
+
+        '*any': function(fragment, args, next) {
+          setTimeout(function() {
+            calls.push(3);
+            next();
+          }, 10);
+        }
+      };
+
+      router.on('route', function() {
+        calls.push(4);
+      });
+
+      router.after = {
+        'home': function(fragment, args, next) {
+          setTimeout(function() {
+            calls.push(5);
+            next();
+          }, 10);
+        },
+
+        '*any': function(fragment, args, next) {
+          setTimeout(function() {
+            calls.push(6);
+            next();
+          }, 10);
+        }
+      };
+
+      navigate('home');
+
+      waitsFor(function() {
+        return _.isEqual([1, 2, 3, 4, 5, 6], calls);
+      }, 'Invalid call stack', 100);
     });
   });
 });

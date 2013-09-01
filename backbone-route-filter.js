@@ -4,8 +4,8 @@
 
   Backbone.Router.extend = function() {
     var child = extend.apply(this, arguments),
-      childProto = child.prototype,
-      parentProto = this.prototype;
+        childProto = child.prototype,
+        parentProto = this.prototype;
 
     _.each(['before', 'after'], function(filter) {
       _.defaults(childProto[filter], parentProto[filter]);
@@ -35,7 +35,7 @@
       Backbone.history.route(route, function(fragment) {
         var args = router._extractParameters(route, fragment);
 
-        if (router._runFilters(router.before, fragment, args, true)) {
+        router._runFilters(router.before, fragment, args, function() {
           if (callback) {
             callback.apply(router, args);
           }
@@ -43,32 +43,54 @@
           router.trigger.apply(router, ['route:' + name].concat(args));
           router.trigger('route', name, args);
           Backbone.history.trigger('route', router, name, args);
-          router._runFilters(router.after, fragment, args, false);
-        }
+
+          router._runFilters(router.after, fragment, args);
+        });
       });
       return this;
     },
 
-    /**
-     * Run set of filters and stops if any of them failing (returns false)
-     * @param filters
-     * @param fragment
-     * @param args
-     * @param {boolean} stopOnError - will stop iterating over filters if any returns false
-     * @return {boolean}
-     * @private
-     */
-    _runFilters: function(filters, fragment, args, stopOnError) {
-      return _[stopOnError ? 'every' : 'each'](filters || [], function(fn, filter) {
+    _runFilters: function(filters, fragment, args, callback) {
+      var chain = _.filter(filters, function(callback, filter) {
         filter = _.isRegExp(filter) ? filter : this._routeToRegExp(filter);
-
-        if (filter.test(fragment)) {
-          fn = _.isFunction(fn) ? fn : this[fn];
-          return fn.apply(this, [fragment, args]) !== false;
-        }
-
-        return true;
+        return filter.test(fragment);
       }, this);
+
+      run(chain, this, fragment, args, callback || _.identity);
     }
   });
 })(Backbone, _);
+
+
+
+
+function run(chain, router, fragment, args, callback) {
+
+  // When filters chain is finished - calling `done` callback
+  if (!chain.length) {
+    callback.call(router);
+    return;
+  }
+
+  var current = chain[0],
+      tail = _.tail(chain),
+      next = function() {
+        run(tail, router, fragment, args, callback);
+      };
+
+  if (_.isString(current)) {
+    current = router[current];
+  }
+
+  if (current.length === 3) {
+    // Filter expects `next` for async - ignoring return value
+    // and waiting for `next` to be called
+    current.apply(router, [fragment, args, next]);
+  } else {
+    // Using regular filter with `false` return value that stops
+    // filters execution
+    if (current.apply(router, [fragment, args]) !== false) {
+      next();
+    }
+  }
+}
