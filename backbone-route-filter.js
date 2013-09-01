@@ -35,7 +35,7 @@
       Backbone.history.route(route, function(fragment) {
         var args = router._extractParameters(route, fragment);
 
-        router._runFilters(router.before, fragment, args, function() {
+        runFilters(router.before, router, fragment, args, function() {
           if (callback) {
             callback.apply(router, args);
           }
@@ -44,53 +44,70 @@
           router.trigger('route', name, args);
           Backbone.history.trigger('route', router, name, args);
 
-          router._runFilters(router.after, fragment, args);
+          runFilters(router.after, router, fragment, args, function() { });
         });
       });
       return this;
-    },
-
-    _runFilters: function(filters, fragment, args, callback) {
-      var chain = _.filter(filters, function(callback, filter) {
-        filter = _.isRegExp(filter) ? filter : this._routeToRegExp(filter);
-        return filter.test(fragment);
-      }, this);
-
-      run(chain, this, fragment, args, callback || _.identity);
     }
   });
-})(Backbone, _);
 
+  /**
+   * Running all filters that matches current fragment
+   *
+   * @param filters {Object} all available filters
+   * @param router {Router} router instance reference
+   * @param fragment {String} current fragment
+   * @param args {Array} fragment arguments
+   * @param callback {Function}
+   */
+  function runFilters(filters, router, fragment, args, callback) {
+    var chain = _.filter(filters, function(callback, filter) {
+      filter = _.isRegExp(filter) ? filter : router._routeToRegExp(filter);
+      return filter.test(fragment);
+    });
 
-
-
-function run(chain, router, fragment, args, callback) {
-
-  // When filters chain is finished - calling `done` callback
-  if (!chain.length) {
-    callback.call(router);
-    return;
+    run(chain, router, fragment, args, callback);
   }
 
-  var current = chain[0],
-      tail = _.tail(chain),
-      next = function() {
-        run(tail, router, fragment, args, callback);
-      };
+  /**
+   * Recursive function to run through filters chain supporting both async calls via `next` or regular
+   * return-value based chain
+   *
+   * @param chain {Array} filter calls chain
+   * @param router {Router} router instance reference
+   * @param fragment {String} current fragment
+   * @param args {Array} fragment arguments
+   * @param callback {Function}
+   */
+  function run(chain, router, fragment, args, callback) {
 
-  if (_.isString(current)) {
-    current = router[current];
-  }
+    // When filters chain is finished - calling `done` callback
+    if (!chain.length) {
+      callback.call(router);
+      return;
+    }
 
-  if (current.length === 3) {
-    // Filter expects `next` for async - ignoring return value
-    // and waiting for `next` to be called
-    current.apply(router, [fragment, args, next]);
-  } else {
-    // Using regular filter with `false` return value that stops
-    // filters execution
-    if (current.apply(router, [fragment, args]) !== false) {
-      next();
+    var current = chain[0],
+        tail = _.tail(chain),
+        next = function() {
+          run(tail, router, fragment, args, callback);
+        };
+
+    if (_.isString(current)) {
+      current = router[current];
+    }
+
+    if (current.length === 3) {
+      // Filter expects `next` for async - ignoring return value
+      // and waiting for `next` to be called
+      current.apply(router, [fragment, args, next]);
+    } else {
+      // Using regular filter with `false` return value that stops
+      // filters execution
+      if (current.apply(router, [fragment, args]) !== false) {
+        next();
+      }
     }
   }
-}
+
+})(Backbone, _);
