@@ -1,4 +1,4 @@
-Backbone Route filters [![Build Status](https://travis-ci.org/fantactuka/backbone-route-filter.png?branch=master)](https://travis-ci.org/fantactuka/backbone-route-filter)
+Backbone Route filters v0.1.0 [![Build Status](https://travis-ci.org/fantactuka/backbone-route-filter.png?branch=master)](https://travis-ci.org/fantactuka/backbone-route-filter)
 ==================
 
 Backbone Route filters allows you to have a pre-condition for the router using `before` filters and some
