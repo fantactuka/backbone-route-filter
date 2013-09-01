@@ -30,9 +30,15 @@ var Router = Backbone.Router.extend({
     // Using instance methods
     'users(:/id)': 'checkAuthorization',
 
-    // Using inline filter definition
+    // Using inline filter definition and `return false` if don't want route to be executed
     '*any': function(fragment, args) {
-      console.log('Atempting to load ' + fragment + ' with arguments: ', args);
+      var hasAccess = CurrentUser.hasAccessTo(fragment, args);
+      
+      if (!hasAccess) {
+        Backbone.navigate('/', true);
+      }
+      
+      return hasAccess;
     }
   },
 
