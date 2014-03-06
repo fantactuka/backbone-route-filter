@@ -1,4 +1,4 @@
-Backbone Route filters [![Build Status](https://travis-ci.org/fantactuka/backbone-route-filter.png?branch=master)](https://travis-ci.org/fantactuka/backbone-route-filter)
+Backbone Route filters v0.1.0 [![Build Status](https://travis-ci.org/fantactuka/backbone-route-filter.png?branch=master)](https://travis-ci.org/fantactuka/backbone-route-filter)
 ==================
 
 Backbone Route filters allows you to have a pre-condition for the router using `before` filters and some
@@ -30,9 +30,15 @@ var Router = Backbone.Router.extend({
     // Using instance methods
     'users(:/id)': 'checkAuthorization',
 
-    // Using inline filter definition
+    // Using inline filter definition and `return false` if don't want route to be executed
     '*any': function(fragment, args) {
-      console.log('Atempting to load ' + fragment + ' with arguments: ', args);
+      var hasAccess = CurrentUser.hasAccessTo(fragment, args);
+      
+      if (!hasAccess) {
+        Backbone.navigate('/', true);
+      }
+      
+      return hasAccess;
     }
   },
 
