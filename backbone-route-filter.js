@@ -1,11 +1,27 @@
-(function(Backbone, _) {
+/**
+ * Backbone.Route filter
+ *
+ * Adds support for sync/async Backbone routes filters
+ *
+ * @author Maksim Horbachevsky
+ */
+
+(function(factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(['backbone', 'underscore'], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory(require('backbone'), require('underscore'));
+  } else {
+    factory(window.Backbone, window._);
+  }
+})(function(Backbone, _) {
 
   var extend = Backbone.Router.extend;
 
   Backbone.Router.extend = function() {
     var child = extend.apply(this, arguments),
-        childProto = child.prototype,
-        parentProto = this.prototype;
+      childProto = child.prototype,
+      parentProto = this.prototype;
 
     _.each(['before', 'after'], function(filter) {
       _.defaults(childProto[filter], parentProto[filter]);
@@ -47,7 +63,8 @@
           router.trigger('route', name, args);
           Backbone.history.trigger('route', router, name, args);
 
-          runFilters(router, router.after, fragment, args, function() { });
+          runFilters(router, router.after, fragment, args, function() {
+          });
         });
       });
 
@@ -92,10 +109,10 @@
     }
 
     var current = chain[0],
-        tail = _.tail(chain),
-        next = function() {
-          run(tail, router, fragment, args, callback);
-        };
+      tail = _.tail(chain),
+      next = function() {
+        run(tail, router, fragment, args, callback);
+      };
 
     if (_.isString(current)) {
       current = router[current];
@@ -114,4 +131,4 @@
     }
   }
 
-})(Backbone, _);
+});
