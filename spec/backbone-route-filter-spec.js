@@ -105,7 +105,7 @@ describe('Backbone.Validator', function() {
       };
 
       navigate('home/user/sam/page/11?list=true');
-      expect(spy).toHaveBeenCalledWith('home/user/sam/page/11?list=true', ['sam', '11', 'list=true']);
+      expect(spy).toHaveBeenCalledWith('home/user/sam/page/11?list=true', ['sam', '11', 'list=true', null]);
     });
   });
 
