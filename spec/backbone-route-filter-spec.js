@@ -66,7 +66,7 @@ describe('Backbone.Validator', function() {
     });
 
     it('calls action if all filters passed', function() {
-      var spy = jasmine.createSpy('filter').andReturn(true);
+      var spy = jasmine.createSpy('filter').and.returnValue(true);
 
       _.extend(router, {
         before: {
@@ -78,11 +78,11 @@ describe('Backbone.Validator', function() {
 
       navigate('home');
       expect(router.isAtHome).toBeTruthy();
-      expect(spy.callCount).toEqual(2);
+      expect(spy.calls.count()).toEqual(2);
     });
 
     it('reject action if any filter failed', function() {
-      var spy = jasmine.createSpy('filter').andReturn(false);
+      var spy = jasmine.createSpy('filter').and.returnValue(false);
 
       _.extend(router, {
         before: {
@@ -94,7 +94,7 @@ describe('Backbone.Validator', function() {
 
       navigate('home');
       expect(router.isAtHome).toBeFalsy();
-      expect(spy.callCount).toEqual(1);
+      expect(spy.calls.count()).toEqual(1);
     });
 
     it('passes params to the filter', function() {
@@ -111,7 +111,7 @@ describe('Backbone.Validator', function() {
 
   describe('#after', function() {
     it('calls action if all filters passed', function() {
-      var spy = jasmine.createSpy('filter').andReturn(true);
+      var spy = jasmine.createSpy('filter').and.returnValue(true);
 
       _.extend(router, {
         after: {
@@ -123,11 +123,11 @@ describe('Backbone.Validator', function() {
 
       navigate('home');
       expect(router.isAtHome).toBeTruthy();
-      expect(spy.callCount).toEqual(2);
+      expect(spy.calls.count()).toEqual(2);
     });
 
     it('calls filters unless one failed', function() {
-      var spy = jasmine.createSpy('filter').andReturn(false);
+      var spy = jasmine.createSpy('filter').and.returnValue(false);
 
       _.extend(router, {
         after: {
@@ -139,7 +139,7 @@ describe('Backbone.Validator', function() {
 
       navigate('home');
       expect(router.isAtHome).toBeTruthy();
-      expect(spy.callCount).toEqual(1);
+      expect(spy.calls.count()).toEqual(1);
     });
   });
 
@@ -200,6 +200,10 @@ describe('Backbone.Validator', function() {
   });
 
   describe('async mode', function() {
+    beforeEach(function() {
+      jasmine.clock().install();
+    });
+
     it('calls filters and triggers one-by-one', function() {
 
       var calls = [];
@@ -246,10 +250,9 @@ describe('Backbone.Validator', function() {
       };
 
       navigate('home');
+      jasmine.clock().tick(50);
 
-      waitsFor(function() {
-        return _.isEqual([1, 2, 3, 4, 5, 6], calls);
-      }, 'Invalid call stack', 100);
+      expect(calls).toEqual([1, 2, 3, 4, 5, 6]);
     });
   });
 });
