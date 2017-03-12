@@ -4,7 +4,7 @@
   "description": "Before and after sync/async filters for backbone router.",
   "main": "./backbone-route-filter.js",
   "homepage": "https://github.com/fantactuka/backbone-route-filter",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": {
     "name": "fantactuka",
     "url": "https://github.com/fantactuka"
