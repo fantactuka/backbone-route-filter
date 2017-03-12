@@ -54,6 +54,12 @@ module.exports = function(grunt) {
       update: {
         src: ['bower.json', 'package.json']
       }
+    },
+
+    exec: {
+      'npm-publish': {
+        cmd: 'npm publish'
+      }
     }
   });
 
@@ -69,5 +75,6 @@ module.exports = function(grunt) {
   grunt.registerTask('release', 'Releasing new version with update version', function() {
     var type = this.args[0] || 'patch';
     grunt.task.run(['test', 'version:update:' + type, 'uglify']);
+    grunt.log.ok('Run grunt exec:npm-publish to release npm module update');
   });
 };
